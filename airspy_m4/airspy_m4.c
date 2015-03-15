@@ -58,6 +58,15 @@ extern volatile uint32_t *usb_bulk_buffer_offset;
 /* Manage round robin after increment with USB_BULK_BUFFER_MASK */
 #define inc_mask_usb_buffer_offset(buff_offset, inc_value) ((buff_offset+inc_value) & USB_BULK_BUFFER_MASK)
 
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+volatile uint32_t usb_bulk_buffer_offset_uint32_m4;
+volatile uint32_t *usb_bulk_buffer_offset_m4;
+#define get_usb_buffer_offset_m4() (usb_bulk_buffer_offset_m4[0])
+#define set_usb_buffer_offset_m4(val) (usb_bulk_buffer_offset_m4[0] = val)
+#define inc_mask_usb_buffer_offset_m4(buff_offset, inc_value) inc_mask_usb_buffer_offset(buff_offset, inc_value)
+volatile unsigned int phase = 0;
+// HB9FUF - BEGIN SamplesStreamCompressionExperiment END
+
 #define SLAVE_TXEV_FLAG ((uint32_t *) 0x40043400)
 #define SLAVE_TXEV_QUIT() { *SLAVE_TXEV_FLAG = 0x0; }
 
@@ -178,6 +187,10 @@ void adchs_start(uint8_t chan_num)
   led_on();
   LPC_ADCHS->TRIGGER = 1;
   __asm("dsb");
+  
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+  phase = 1;
+// HB9FUF - SamplesStreamCompressionExperiment END
 
   /* Enable IRQ globally */
   __asm__("cpsie i");
@@ -247,7 +260,12 @@ void dma_isr(void)
   if( status & INTTC0 )
   {
     LPC_GPDMA->INTTCCLEAR |= INTTC0; /* Clear Chan0 */
-    set_usb_buffer_offset( inc_mask_usb_buffer_offset(get_usb_buffer_offset(), USB_DATA_TRANSFER_SIZE_BYTE) );
+
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+    // set_usb_buffer_offset( inc_mask_usb_buffer_offset(get_usb_buffer_offset(), USB_DATA_TRANSFER_SIZE_BYTE) );
+    set_usb_buffer_offset_m4( inc_mask_usb_buffer_offset_m4(get_usb_buffer_offset_m4(), USB_DATA_TRANSFER_SIZE_BYTE) );
+// HB9FUF - SamplesStreamCompressionExperiment END
+
     signal_sev();
   }
 
@@ -343,6 +361,19 @@ void scs_dwt_cycle_counter_enabled(void)
 	SCS_DWT_CTRL  |= SCS_DWT_CTRL_CYCCNTENA;
 }
 
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+void SamplesStreamCompressionExperiment_packSamples_uint16(uint16_t* unpacked_samples, uint16_t* packed_samples, const unsigned int samples_nbr)
+{
+	unsigned int index_unpacked, index_packed;
+	for(index_unpacked = 0, index_packed = 0; index_unpacked < samples_nbr; index_unpacked = index_unpacked + 4, index_packed = index_packed + 3)
+	{
+		packed_samples[index_packed+0] = (unpacked_samples[index_unpacked+0] <<  4) |  (unpacked_samples[index_unpacked+1] >> 8);
+		packed_samples[index_packed+1] = (unpacked_samples[index_unpacked+1] <<  8) | ((unpacked_samples[index_unpacked+2] & 0x0FFF) >> 4);
+		packed_samples[index_packed+2] = (unpacked_samples[index_unpacked+2] << 12) | ((unpacked_samples[index_unpacked+3] & 0x0FFF)     );
+	}
+}
+// HB9FUF - SamplesStreamCompressionExperiment END
+
 int main(void)
 {
 	scs_dwt_cycle_counter_enabled();
@@ -379,8 +410,32 @@ int main(void)
 	CCU1_CLK_PERIPH_CORE_CFG &= ~(1);
 #endif
 
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+  usb_bulk_buffer_offset_m4 = &usb_bulk_buffer_offset_uint32_m4;
+// HB9FUF - SamplesStreamCompressionExperiment END
+
   while(true)
   {
     signal_wfe();
+    
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+    if( (get_usb_buffer_offset_m4() >= 16384) && 
+        (phase == 1) )
+    {
+	SamplesStreamCompressionExperiment_packSamples_uint16((uint16_t*) &usb_bulk_buffer[0x0000], (uint16_t*) &usb_bulk_buffer[0x0000], 0x2000);
+	set_usb_buffer_offset( inc_mask_usb_buffer_offset(get_usb_buffer_offset(), USB_DATA_TRANSFER_SIZE_BYTE) );
+	signal_sev();
+	phase = 0;
+    }
+
+    if( (get_usb_buffer_offset_m4() < 16384) && 
+        (phase == 0) )
+    {
+	SamplesStreamCompressionExperiment_packSamples_uint16((uint16_t*) &usb_bulk_buffer[0x4000], (uint16_t*) &usb_bulk_buffer[0x4000], 0x2000);
+	set_usb_buffer_offset( inc_mask_usb_buffer_offset(get_usb_buffer_offset(), USB_DATA_TRANSFER_SIZE_BYTE) );
+	signal_sev();
+	phase = 1;  
+    }
+// HB9FUF - SamplesStreamCompressionExperiment END
   }  
 }
