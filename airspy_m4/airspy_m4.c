@@ -362,7 +362,7 @@ void scs_dwt_cycle_counter_enabled(void)
 }
 
 // HB9FUF - SamplesStreamCompressionExperiment BEGIN
-void SamplesStreamCompressionExperiment_packSamples_uint16(uint16_t* unpacked_samples, uint16_t* packed_samples, const unsigned int samples_nbr)
+void samplesStreamCompressionExperiment_packSamples_uint16(uint16_t* unpacked_samples, uint16_t* packed_samples, const unsigned int samples_nbr)
 {
 	unsigned int index_unpacked, index_packed;
 	for(index_unpacked = 0, index_packed = 0; index_unpacked < samples_nbr; index_unpacked = index_unpacked + 4, index_packed = index_packed + 3)
@@ -422,7 +422,7 @@ int main(void)
     if( (get_usb_buffer_offset_m4() >= 16384) && 
         (phase == 1) )
     {
-	SamplesStreamCompressionExperiment_packSamples_uint16((uint16_t*) &usb_bulk_buffer[0x0000], (uint16_t*) &usb_bulk_buffer[0x0000], 0x2000);
+	samplesStreamCompressionExperiment_packSamples_uint16((uint16_t*) &usb_bulk_buffer[0x0000], (uint16_t*) &usb_bulk_buffer[0x0000], 0x2000);
 	set_usb_buffer_offset( inc_mask_usb_buffer_offset(get_usb_buffer_offset(), USB_DATA_TRANSFER_SIZE_BYTE) );
 	signal_sev();
 	phase = 0;
@@ -431,7 +431,7 @@ int main(void)
     if( (get_usb_buffer_offset_m4() < 16384) && 
         (phase == 0) )
     {
-	SamplesStreamCompressionExperiment_packSamples_uint16((uint16_t*) &usb_bulk_buffer[0x4000], (uint16_t*) &usb_bulk_buffer[0x4000], 0x2000);
+	samplesStreamCompressionExperiment_packSamples_uint16((uint16_t*) &usb_bulk_buffer[0x4000], (uint16_t*) &usb_bulk_buffer[0x4000], 0x2000);
 	set_usb_buffer_offset( inc_mask_usb_buffer_offset(get_usb_buffer_offset(), USB_DATA_TRANSFER_SIZE_BYTE) );
 	signal_sev();
 	phase = 1;  
