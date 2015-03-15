@@ -172,6 +172,20 @@ void m4core_isr(void)
   MASTER_TXEV_QUIT();
 }
 
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+void samplesStreamCompressionExperiment_unpackSamples_uint16(uint16_t* packed_samples, uint16_t* unpacked_samples, const unsigned int samples_nbr)
+{
+	int index_packed, index_unpacked;
+	for(index_packed = ((samples_nbr * 3) / 4) - 1, index_unpacked = samples_nbr - 1; index_unpacked > 0; index_packed = index_packed - 3, index_unpacked = index_unpacked - 4)
+	{
+		unpacked_samples[index_unpacked-0] =  (packed_samples[index_packed-0] & 0x0FFF);
+		unpacked_samples[index_unpacked-1] =  (packed_samples[index_packed-0] >> 12)          | ((packed_samples[index_packed-1] & 0x00FF) << 4);
+		unpacked_samples[index_unpacked-2] = ((packed_samples[index_packed-1] & 0xFF00) >> 8) | ((packed_samples[index_packed-2] & 0x000F) << 8);
+		unpacked_samples[index_unpacked-3] =  (packed_samples[index_packed-2] >> 4);
+	}
+}
+// HB9FUF - SamplesStreamCompressionExperiment END
+
 /*
 M0 Core Manage USB 
 */
@@ -219,14 +233,22 @@ int main(void)
     if( (get_usb_buffer_offset() >= 16384) && 
         (phase == 1) )
     {
-      usb_transfer_schedule_block(&usb_endpoint_bulk_in, &usb_bulk_buffer[0x0000], 0x4000, NULL, NULL);
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+      // samplesStreamCompressionExperiment_unpackSamples_uint16(&usb_bulk_buffer[0x0000], &usb_bulk_buffer[0x0000], 0x2000);
+      // usb_transfer_schedule_block(&usb_endpoint_bulk_in, &usb_bulk_buffer[0x0000], 0x4000, NULL, NULL);
+      usb_transfer_schedule_block(&usb_endpoint_bulk_in, &usb_bulk_buffer[0x0000], 0x3000, NULL, NULL);
+// HB9FUF - SamplesStreamCompressionExperiment END
       phase = 0;
     }
 
     if( (get_usb_buffer_offset() < 16384) && 
         (phase == 0) )
     {
-      usb_transfer_schedule_block(&usb_endpoint_bulk_in, &usb_bulk_buffer[0x4000], 0x4000, NULL, NULL);
+// HB9FUF - SamplesStreamCompressionExperiment BEGIN
+      // samplesStreamCompressionExperiment_unpackSamples_uint16(&usb_bulk_buffer[0x4000], &usb_bulk_buffer[0x4000], 0x2000);
+      // usb_transfer_schedule_block(&usb_endpoint_bulk_in, &usb_bulk_buffer[0x4000], 0x4000, NULL, NULL);
+      usb_transfer_schedule_block(&usb_endpoint_bulk_in, &usb_bulk_buffer[0x4000], 0x3000, NULL, NULL);
+// HB9FUF - SamplesStreamCompressionExperiment END
       phase = 1;  
     }
   }
