@@ -30,14 +30,14 @@ extern "C"
 {
 #endif
 
-/* Configure I2C0 to 400kHz (140MHz/(2*175)=0.4MHz) */
-/* Configure I2C0 to 111kHz (40MHz/(2*175)=0.111MHz) */
-#define AIRSPY_I2C0_PLL1_LS_HS_CONF_VAL (175)
+/* Configure I2C0 to 400kHz (140MHz/(2*175)=0.400MHz) - This comment is the oiginal 1.0.0.rc3 comment, with AIRSPY_I2C0_PLL1_LS_HS_CONF_VAL (175) *//
+/* Configure I2C0 to 111kHz ( 40MHz/(2*175)=0.111MHz) - This comment is the oiginal 1.0.0.rc3 comment, with AIRSPY_I2C0_PLL1_LS_HS_CONF_VAL (175) */
+#define AIRSPY_I2C0_PLL1_LS_HS_CONF_VAL (200)
 
-/* Configure I2C1 to 400kHz (140MHz/(2*175)=0.4MHz) */
-#define AIRSPY_I2C1_PLL1_HS_CONF_VAL (175)
-/* Configure I2C1 to 400kHz (40MHz/(2*50)=0.4MHz) */
-#define AIRSPY_I2C1_PLL1_LS_CONF_VAL (50)
+/* Configure I2C1 to 400kHz (140MHz/(2*175)=0.4MHz) - This comment is the oiginal 1.0.0.rc3 comment, with AIRSPY_I2C1_PLL1_HS_CONF_VAL (175) */
+#define AIRSPY_I2C1_PLL1_HS_CONF_VAL (200)
+/* Configure I2C1 to 400kHz (40MHz/(2*50)=0.4MHz) - This comment is the oiginal 1.0.0.rc3 comment, with AIRSPY_I2C1_PLL1_LS_CONF_VAL (50) */
+#define AIRSPY_I2C1_PLL1_LS_CONF_VAL (100)
 
 #define AIRSPY_SAMPLERATE_DEFAULT_CONF (AIRSPY_SAMPLERATE_10MSPS)
 
