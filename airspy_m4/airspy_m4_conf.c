@@ -25,27 +25,27 @@
 */
 
 /*
-Clock configuration with GP_CLKIN=20MHz
+Clock configuration with GP_CLKIN=12MHz
 Configuration of clocks at init (sys_clock_init())
 */
 const airspy_sys_clock_t airspy_m4_init_conf =
 {
   /* Configure PLL0USB to produce 480MHz clock from GP_CLKIN */
-  0x040E03FF, // uint32_t pll0_usb_mdiv;
-  0x00000000, // uint32_t pll0_usb_npdiv;
+  (0 << 28) | (24 << 22) | (11 << 17) | (32762 << 0), // uint32_t pll0_usb_mdiv; SELR SELI SELP MDEC
+  (0 << 0) | (0 << 12), // uint32_t pll0_usb_npdiv; P N
   (PLL0USB_CTRL_FLAG_DIRECT_I | PLL0USB_CTRL_FLAG_DIRECT_O), // uint32_t pll0usb_ctrl_flags; DirectI=PLL0USB_CTRL_FLAG_DIRECT_I or/and DirectO=PLL0USB_CTRL_FLAG_DIRECT_O */
   /* PLL1 clock from GP_CLKIN */
-  /* PLL1 High Speed Mode Set PLL1 to 20MHz * (6+1) = 140MHz */
+  /* PLL1 High Speed Mode Set PLL1 to 12MHz * (11+1) = 160MHz */
   {
     0, // uint32_t pll1_hs_psel;
     0, // uint32_t pll1_hs_nsel;
-    6, // uint32_t pll1_hs_msel;
+   11, // uint32_t pll1_hs_msel;
   },
-  /* PLL1 Low Speed Mode => Set PLL1 to 20MHz * (1+1) = 40MHz */
+  /* PLL1 Low Speed Mode => Set PLL1 to 12MHz * (3+1) = 48MHz */
   {
     0, // uint32_t pll1_ls_psel;
     0, // uint32_t pll1_ls_nsel;
-    1, // uint32_t pll1_ls_msel;
+    3, // uint32_t pll1_ls_msel;
   },
   {
     /* ADCHS samplerate */
@@ -53,7 +53,7 @@ const airspy_sys_clock_t airspy_m4_init_conf =
     0, // uint32_t pll0audio_mdiv;
     0, // uint32_t pll0audio_npdiv;
     PLL0AUDIO_CTRL_FLAG_DIRECT_I, // uint32_t pll0audio_ctrl_flags; DirectI=PLL0AUDIO_CTRL_FLAG_DIRECT_I or/and DirectO=PLL0AUDIO_CTRL_FLAG_DIRECT_O */
-    /* IDIVB (from 20MHz GP_CLKIN) not used set it to 0 */
+    /* IDIVB (from 12MHz GP_CLKIN) not used set it to 0 */
     0, // uint8_t adchs_idivb; /* 0 to 15 (0 means direct connection GP_CLKIN to ADCHS_CLK) */
     { 0, 0, 0 } /* uint8_t padding[3] */
   },
@@ -87,7 +87,7 @@ const airspy_sys_samplerate_t airspy_m4_conf[AIRSPY_CONF_NB] =
     0x00000000, // uint32_t pll0audio_npdiv;
     0x00000000, // uint32_t pll0audio_ctrl_flags; DirectI=PLL0AUDIO_CTRL_FLAG_DIRECT_I or/and DirectO=PLL0AUDIO_CTRL_FLAG_DIRECT_O */
     /* IDIVB not used set it to 0 */
-    3, // uint8_t adchs_idivb; /* 0 to 15 (0 means direct connection GP_CLKIN to ADCHS_CLK) */
+    1, // uint8_t adchs_idivb; /* 0 to 15 (0 means direct connection GP_CLKIN to ADCHS_CLK) */
     { 0, 0, 0 } /* uint8_t padding[3] */
   }
 };
@@ -99,21 +99,21 @@ uint8_t si5351c_config[180] =
   Options->Save device registers (not for factory programming)
   See file Si5351C-AIRSPY_NOS-GM_LPC_20MHz_R820T_20MHz_0pf_New_FULL_NotFactory.txt
   SI5351C Configuration details (XTAL 25MHz):
-  Channel 0 = 20MHz R820T (Drive Strength 6mA, Inverted)
+  Channel 0 = 12MHz R820T (Drive Strength 6mA, Inverted)
   Channel 1 = 32768Hz LPC4370 RTC (Drive Strength 2mA)
   Channel 2 to 6 = Disabled/Not Used
-  Channel 7 = 20MHz LPC4370 (Drive Strength 8mA)
+  Channel 7 = 12MHz LPC4370 (Drive Strength 8mA)
   */
   0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x8F, 0x01, 0x00, 0x00, // 0 - 9
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7E, 0x83, 0x83, 0x83, // 10 - 19
-  0x83, 0x83, 0x83, 0x4F, 0x00, 0x00, 0x00, 0x05, 0x00, 0x0F, // 20 - 29
-  0x99, 0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x0E, 0x00, 0x00, // 30 - 39
-  0x00, 0x00, 0x00, 0x01, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, // 40 - 49
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6C, 0x83, 0x83, 0x83, // 10 - 19
+  0x83, 0x83, 0x83, 0x4C, 0x00, 0x00, 0x00, 0x19, 0x00, 0x0F, // 20 - 29
+  0xC2, 0x00, 0x00, 0x0E, 0x00, 0x01, 0x00, 0x0A, 0x00, 0x00, // 30 - 39
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x17, 0x00, 0x00, 0x00, 0x00, // 40 - 49
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 50 - 59
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 60 - 69
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 70 - 79
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 80 - 89
-  0x00, 0x2C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 90 - 99
+  0x00, 0x4A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 90 - 99
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 100 - 109
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 110 - 119
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 120 - 129
