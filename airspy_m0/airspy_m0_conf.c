@@ -25,12 +25,12 @@ const airspy_m0_conf_t airspy_m0_conf[AIRSPY_CONF_NB] =
 {
   /* Conf 0 => AIRSPY_SAMPLERATE_10MSPS = 0 => airspy_samplerate_t */
   {
-    5000000, // Freq 20MHz => 10Mhz IQ => IF Freq = 5MHz (r820t_if_freq)
-    56  // uint8_t r820t_bw;
+    3000000, // Freq 12MHz =>  6Mhz IQ => IF Freq = 3.000MHz (r820t_if_freq) 
+    32  // uint8_t r820t_bw;
   },
   /* Conf 1 => AIRSPY_SAMPLERATE_2_5MSPS = 1 */
   {
-    1250000, // Freq 5Mhz => 2.5MHz IQ => IF Freq = 1.25MHz (r820t_if_freq)
-    0 // uint8_t r820t_bw;
+    1500000, // Freq 6Mhz =>   3MHz IQ => IF Freq = 1.500MHz (r820t_if_freq)
+    16 // uint8_t r820t_bw;
   }
 };
