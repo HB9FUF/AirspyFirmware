@@ -28,7 +28,7 @@
 /* Shall be not set as const as the structure is used as IN & OUT */
 r820t_priv_t r820t_conf_rw =
 {
-  5000000, // Freq 20MHz => 10Mhz IQ => IF Freq = 5MHz (r820t_if_freq)
+  3000000, // Freq 20MHz => 10Mhz IQ => IF Freq = 5MHz (r820t_if_freq) - this is the original 1.0.0.rc3 comment
   100000000, /* Default Freq 100Mhz */
   {
     /* 05 */ 0x90, // LNA manual gain mode, init to 0
