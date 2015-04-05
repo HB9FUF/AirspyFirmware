@@ -36,7 +36,7 @@ extern "C"
 #define NUM_REGS 30
 
 /* R820T Clock */
-#define XTAL_FREQ_HZ 20000000
+#define XTAL_FREQ_HZ 12000000
 #define CALIBRATION_LO 88000
 
 typedef struct
